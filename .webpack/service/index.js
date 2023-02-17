@@ -2,6 +2,150 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./dataSource/organizationDataSource.js":
+/*!**********************************************!*\
+  !*** ./dataSource/organizationDataSource.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ organizations)
+/* harmony export */ });
+/* harmony import */ var apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! apollo-datasource-mongodb */ "apollo-datasource-mongodb");
+/* harmony import */ var apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__);
+
+class organizations extends apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__.MongoDataSource {
+  async createOrganizations(data) {
+    console.log('data', data);
+    return data;
+    // return await this.model.create({name, email, password, role});
+  }
+}
+
+;
+
+/***/ }),
+
+/***/ "./models/organizationSchema.js":
+/*!**************************************!*\
+  !*** ./models/organizationSchema.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_0__);
+
+const organization = mongoose__WEBPACK_IMPORTED_MODULE_0___default().Schema({
+  name: {
+    type: 'String'
+  },
+  email: {
+    type: 'String'
+  },
+  category: {
+    type: 'String'
+  },
+  employees: {
+    type: 'String'
+  },
+  password: {
+    type: 'String'
+  }
+});
+let Organization = mongoose__WEBPACK_IMPORTED_MODULE_0___default().model("Organization", organization);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Organization);
+
+/***/ }),
+
+/***/ "./serverConfig/dataSource.js":
+/*!************************************!*\
+  !*** ./serverConfig/dataSource.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "dataSources": () => (/* binding */ dataSources)
+/* harmony export */ });
+/* harmony import */ var _models_organizationSchema__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/organizationSchema */ "./models/organizationSchema.js");
+/* harmony import */ var _dataSource_organizationDataSource__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../dataSource/organizationDataSource */ "./dataSource/organizationDataSource.js");
+
+
+const dataSources = {
+  organization: new _dataSource_organizationDataSource__WEBPACK_IMPORTED_MODULE_1__["default"](_models_organizationSchema__WEBPACK_IMPORTED_MODULE_0__["default"])
+};
+
+/***/ }),
+
+/***/ "./serverConfig/resolver.js":
+/*!**********************************!*\
+  !*** ./serverConfig/resolver.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "resolvers": () => (/* binding */ resolvers)
+/* harmony export */ });
+const resolvers = {
+  Query: {
+    hello: () => "world"
+  },
+  Mutation: {
+    createOrganization: (parent, args, context) => {
+      return context.dataSource.organization.createOrganizations(args);
+    }
+  }
+};
+
+/***/ }),
+
+/***/ "./serverConfig/typeDefs.js":
+/*!**********************************!*\
+  !*** ./serverConfig/typeDefs.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "typeDefs": () => (/* binding */ typeDefs)
+/* harmony export */ });
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_0__);
+
+const typeDefs = apollo_server_express__WEBPACK_IMPORTED_MODULE_0__.gql`
+  type Query {
+    hello: String
+  }
+  type Mutation{
+    createOrganization(name:String,email:String,category:String,employees:String,password:String): organization!
+  }
+  type organization{
+    name:String
+    email:String
+    category:String
+    employees:String
+    password:String
+  }
+`;
+
+/***/ }),
+
+/***/ "apollo-datasource-mongodb":
+/*!********************************************!*\
+  !*** external "apollo-datasource-mongodb" ***!
+  \********************************************/
+/***/ ((module) => {
+
+module.exports = require("apollo-datasource-mongodb");
+
+/***/ }),
+
 /***/ "apollo-server-express":
 /*!****************************************!*\
   !*** external "apollo-server-express" ***!
@@ -29,6 +173,26 @@ module.exports = require("express");
 /***/ ((module) => {
 
 module.exports = require("graphql-playground-middleware-express");
+
+/***/ }),
+
+/***/ "jsonwebtoken":
+/*!*******************************!*\
+  !*** external "jsonwebtoken" ***!
+  \*******************************/
+/***/ ((module) => {
+
+module.exports = require("jsonwebtoken");
+
+/***/ }),
+
+/***/ "mongoose":
+/*!***************************!*\
+  !*** external "mongoose" ***!
+  \***************************/
+/***/ ((module) => {
+
+module.exports = require("mongoose");
 
 /***/ }),
 
@@ -128,31 +292,49 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
 /* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./serverConfig/typeDefs */ "./serverConfig/typeDefs.js");
+/* harmony import */ var _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./serverConfig/resolver */ "./serverConfig/resolver.js");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! jsonwebtoken */ "jsonwebtoken");
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(jsonwebtoken__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./serverConfig/dataSource */ "./serverConfig/dataSource.js");
 
 
 
 
-const typeDefs = apollo_server_express__WEBPACK_IMPORTED_MODULE_3__.gql`
-  type Query {
-    hello: String
-  }
-`;
-const resolvers = {
-  Query: {
-    hello: () => "world"
-  }
+
+
+
+
+
+const Url = process.env.MONGO_DB_URL;
+const connectDB = async () => {
+  await mongoose__WEBPACK_IMPORTED_MODULE_6___default().connect(Url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
 };
+connectDB().then(() => {
+  console.log('your database run successfully');
+}).catch(err => {
+  console.log('err', err);
+});
 const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
-// const server = new ApolloServer({
-//     typeDefs,
-//     resolvers,
-//     path: "/graphql"
-// });
 let apolloServer = null;
 async function startServer() {
   apolloServer = new apollo_server_express__WEBPACK_IMPORTED_MODULE_3__.ApolloServer({
-    typeDefs,
-    resolvers
+    typeDefs: _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_4__.typeDefs,
+    resolvers: _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_5__.resolvers,
+    context: {
+      // const token = req.headers.authorization.split('Bearer ')[1] || '';
+      // let user ;
+      // if(token){
+      //     user = await jwt.verify(token, process.env.JWT_KEY);
+      // }
+      // return {user};
+      dataSources: _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_8__.dataSources
+    }
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({

@@ -1,28 +1,39 @@
 import express from "express";
 import serverless from "serverless-http";
 import graphiql from "graphql-playground-middleware-express";
-import { ApolloServer, gql } from "apollo-server-express";
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
-const resolvers = {
-    Query: {
-        hello: () => "world"
-    }
+import { ApolloServer } from "apollo-server-express";
+import {typeDefs} from "./serverConfig/typeDefs";
+import {resolvers} from "./serverConfig/resolver";
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import {dataSources} from "./serverConfig/dataSource";
+
+const Url = process.env.MONGO_DB_URL;
+const connectDB = async () => {
+    await mongoose.connect(Url, { useNewUrlParser: true, useUnifiedTopology: true })
 };
+
+connectDB().then(()=>{
+    console.log('your database run successfully')
+}).catch(err=>{
+    console.log('err',err);
+});
+
 const app = express();
-// const server = new ApolloServer({
-//     typeDefs,
-//     resolvers,
-//     path: "/graphql"
-// });
 let apolloServer = null;
 async function startServer() {
     apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
+        context: {
+            // const token = req.headers.authorization.split('Bearer ')[1] || '';
+            // let user ;
+            // if(token){
+            //     user = await jwt.verify(token, process.env.JWT_KEY);
+            // }
+            // return {user};
+            dataSources
+        }
     });
     await apolloServer.start();
     apolloServer.applyMiddleware({ app });
