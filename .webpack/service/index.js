@@ -14,15 +14,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! apollo-datasource-mongodb */ "apollo-datasource-mongodb");
 /* harmony import */ var apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var apollo_server_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! apollo-server-errors */ "apollo-server-errors");
+/* harmony import */ var apollo_server_errors__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(apollo_server_errors__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var bcrypt__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bcrypt */ "bcrypt");
+/* harmony import */ var bcrypt__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(bcrypt__WEBPACK_IMPORTED_MODULE_2__);
+
+
 
 class organizations extends apollo_datasource_mongodb__WEBPACK_IMPORTED_MODULE_0__.MongoDataSource {
   async createOrganizations(data) {
-    console.log('data', data);
-    return data;
-    // return await this.model.create({name, email, password, role});
+    if (data) {
+      const organizations = await this.model.find({
+        email: data.email
+      });
+      if (organizations?.length) {
+        throw new apollo_server_errors__WEBPACK_IMPORTED_MODULE_1__.AuthenticationError('this organization already exist');
+      } else {
+        const user = {
+          ...data,
+          password: await bcrypt__WEBPACK_IMPORTED_MODULE_2___default().hash(data.password, 10)
+        };
+        const organization = await this.model.create(user);
+        return organization;
+      }
+    } else {
+      (0,apollo_server_errors__WEBPACK_IMPORTED_MODULE_1__.ValidationError)('please enter valid data');
+    }
   }
 }
-
 ;
 
 /***/ }),
@@ -98,7 +117,7 @@ const resolvers = {
   },
   Mutation: {
     createOrganization: (parent, args, context) => {
-      return context.dataSource.organization.createOrganizations(args);
+      return context.dataSources.organization.createOrganizations(args);
     }
   }
 };
@@ -123,7 +142,7 @@ const typeDefs = apollo_server_express__WEBPACK_IMPORTED_MODULE_0__.gql`
     hello: String
   }
   type Mutation{
-    createOrganization(name:String,email:String,category:String,employees:String,password:String): organization!
+    createOrganization(name:String!,email:String!,category:String!,employees:String!,password:String!): organization!
   }
   type organization{
     name:String
@@ -146,6 +165,16 @@ module.exports = require("apollo-datasource-mongodb");
 
 /***/ }),
 
+/***/ "apollo-server-errors":
+/*!***************************************!*\
+  !*** external "apollo-server-errors" ***!
+  \***************************************/
+/***/ ((module) => {
+
+module.exports = require("apollo-server-errors");
+
+/***/ }),
+
 /***/ "apollo-server-express":
 /*!****************************************!*\
   !*** external "apollo-server-express" ***!
@@ -153,6 +182,26 @@ module.exports = require("apollo-datasource-mongodb");
 /***/ ((module) => {
 
 module.exports = require("apollo-server-express");
+
+/***/ }),
+
+/***/ "bcrypt":
+/*!*************************!*\
+  !*** external "bcrypt" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("bcrypt");
+
+/***/ }),
+
+/***/ "dotenv":
+/*!*************************!*\
+  !*** external "dotenv" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("dotenv");
 
 /***/ }),
 
@@ -286,19 +335,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var serverless_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! serverless-http */ "serverless-http");
-/* harmony import */ var serverless_http__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(serverless_http__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! graphql-playground-middleware-express */ "graphql-playground-middleware-express");
-/* harmony import */ var graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
-/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./serverConfig/typeDefs */ "./serverConfig/typeDefs.js");
-/* harmony import */ var _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./serverConfig/resolver */ "./serverConfig/resolver.js");
-/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! mongoose */ "mongoose");
-/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! jsonwebtoken */ "jsonwebtoken");
-/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(jsonwebtoken__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./serverConfig/dataSource */ "./serverConfig/dataSource.js");
+/* harmony import */ var dotenv__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! dotenv */ "dotenv");
+/* harmony import */ var dotenv__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(dotenv__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var serverless_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! serverless-http */ "serverless-http");
+/* harmony import */ var serverless_http__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(serverless_http__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! graphql-playground-middleware-express */ "graphql-playground-middleware-express");
+/* harmony import */ var graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! apollo-server-express */ "apollo-server-express");
+/* harmony import */ var apollo_server_express__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(apollo_server_express__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./serverConfig/typeDefs */ "./serverConfig/typeDefs.js");
+/* harmony import */ var _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./serverConfig/resolver */ "./serverConfig/resolver.js");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! mongoose */ "mongoose");
+/* harmony import */ var mongoose__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(mongoose__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! jsonwebtoken */ "jsonwebtoken");
+/* harmony import */ var jsonwebtoken__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(jsonwebtoken__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./serverConfig/dataSource */ "./serverConfig/dataSource.js");
 
 
 
@@ -308,9 +359,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+dotenv__WEBPACK_IMPORTED_MODULE_1___default().config();
 const Url = process.env.MONGO_DB_URL;
+mongoose__WEBPACK_IMPORTED_MODULE_7___default().set("strictQuery", false);
 const connectDB = async () => {
-  await mongoose__WEBPACK_IMPORTED_MODULE_6___default().connect(Url, {
+  await mongoose__WEBPACK_IMPORTED_MODULE_7___default().connect(Url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
@@ -323,9 +377,9 @@ connectDB().then(() => {
 const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
 let apolloServer = null;
 async function startServer() {
-  apolloServer = new apollo_server_express__WEBPACK_IMPORTED_MODULE_3__.ApolloServer({
-    typeDefs: _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_4__.typeDefs,
-    resolvers: _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_5__.resolvers,
+  apolloServer = new apollo_server_express__WEBPACK_IMPORTED_MODULE_4__.ApolloServer({
+    typeDefs: _serverConfig_typeDefs__WEBPACK_IMPORTED_MODULE_5__.typeDefs,
+    resolvers: _serverConfig_resolver__WEBPACK_IMPORTED_MODULE_6__.resolvers,
     context: {
       // const token = req.headers.authorization.split('Bearer ')[1] || '';
       // let user ;
@@ -333,7 +387,7 @@ async function startServer() {
       //     user = await jwt.verify(token, process.env.JWT_KEY);
       // }
       // return {user};
-      dataSources: _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_8__.dataSources
+      dataSources: _serverConfig_dataSource__WEBPACK_IMPORTED_MODULE_9__.dataSources
     }
   });
   await apolloServer.start();
@@ -342,10 +396,10 @@ async function startServer() {
   });
 }
 startServer();
-app.get("/playground", graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_2___default()({
+app.get("/playground", graphql_playground_middleware_express__WEBPACK_IMPORTED_MODULE_3___default()({
   endpoint: "/dev/graphql"
 }));
-const handler = serverless_http__WEBPACK_IMPORTED_MODULE_1___default()(app);
+const handler = serverless_http__WEBPACK_IMPORTED_MODULE_2___default()(app);
 
 })();
 

@@ -14,6 +14,7 @@ provider:
 functions:
   graphql:
     handler: index.handler
+    timeout: 30
     events:
       - http:
           path: graphql
@@ -21,6 +22,7 @@ functions:
           cors: true
   playground:
     handler: index.handler
+    timeout: 30
     events:
       - http:
           path: playground
