@@ -6,6 +6,7 @@ export const typeDefs = gql`
   }
   type Mutation{
     createOrganization(name:String!,email:String!,category:String!,employees:String!,password:String!): organization!
+    loginUser(email:String!,password:String!): organizations!
   }
   type organization{
     name:String
@@ -13,5 +14,13 @@ export const typeDefs = gql`
     category:String
     employees:String
     password:String
+  }
+  type organizations{
+    name:String
+    email:String
+    category:String
+    employees:String
+    password:String
+    token:String
   }
 `;
