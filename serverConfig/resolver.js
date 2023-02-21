@@ -10,7 +10,11 @@ export const resolvers = {
             return context.dataSources.organization.loginUser(args)
         },
         createUser: (parent, args,context) => {
+            console.log('context', context)
             return context.dataSources.user.createUsers(args)
+        },
+        createOrder: (parent, args, context) => {
+            return context.dataSources.cashFree.createOrder(args)
         }
     }
 };
