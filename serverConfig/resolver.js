@@ -9,5 +9,8 @@ export const resolvers = {
         loginUser: (parent, args,context) => {
             return context.dataSources.organization.loginUser(args)
         },
+        createUser: (parent, args,context) => {
+            return context.dataSources.user.createUsers(args)
+        }
     }
 };
