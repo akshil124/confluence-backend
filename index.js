@@ -28,14 +28,13 @@ async function startServer() {
     apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
-        context: {
-            // const token = req.headers.authorization.split('Bearer ')[1] || '';
-            // let user ;
-            // if(token){
-            //     user = await jwt.verify(token, process.env.JWT_KEY);
-            // }
-            // return {user};
-            dataSources
+        context: async ({ req }) => {
+            const token = req.headers.authorization?.split('Bearer ')[0] || '';
+            let user;
+            if(token){
+                user = await jwt.verify(token, process.env.JWT_KEY);
+            }
+            return {user,dataSources};
         }
     });
     await apolloServer.start();
