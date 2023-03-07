@@ -1,6 +1,7 @@
 import {MongoDataSource} from 'apollo-datasource-mongodb';
 import {ForbiddenError, ValidationError} from "apollo-server-errors";
 import axios from 'axios';
+import Organization from "../models/organizationSchema";
 
 export default class cashFree extends MongoDataSource {
     async createOrder(data) {
@@ -31,6 +32,7 @@ export default class cashFree extends MongoDataSource {
                 }
             };
             let session_id = "";
+            await Organization.findByIdAndUpdate(data.customer_id,{ plan:data?.plan });
             const response = await axios.request(options)
                 .catch(function (error) {
                     throw new ForbiddenError(error)
@@ -45,7 +47,7 @@ export default class cashFree extends MongoDataSource {
         if(data){
             const options = {
                 method: 'POST',
-                url: 'https://sandbox.cashfree.com/pg/orders',
+                url: 'https://sandbox.cashfree.com/pg/orders/sessions',
                 headers: {
                     accept: 'application/json',
                     'x-api-version': '2022-09-01',
@@ -56,13 +58,39 @@ export default class cashFree extends MongoDataSource {
                     payment_session_id: data.session_id
                 }
             };
-            let redirect_url = "";
+            let url = "";
             const response = await axios.request(options)
                 .catch(function (error) {
                     throw new ForbiddenError(error)
                 });
-            redirect_url = response?.data?.data?.payload?.web;
-            return { redirect_url }
+            url = response?.data?.data?.payload?.default;
+            return { url }
+        }else {
+            throw new ValidationError('please enter valid data')
+        }
+    }
+    async getOrderPaymentStatus(data) {
+        if(data){
+            const options = {
+                method: 'GET',
+                url: `https://sandbox.cashfree.com/pg/orders/${data?.order_id}`,
+                headers: {
+                    accept: 'application/json',
+                    'x-client-id': process.env.CASHFREE_ID,
+                    'x-client-secret': process.env.CASHFREE_KEY,
+                    'x-api-version': '2022-09-01'
+                }
+            };
+            let status = "";
+            const response = await axios.request(options)
+                .catch(function (error) {
+                    throw new ForbiddenError(error)
+                });
+            status = response?.data?.order_status;
+            if(status === "PAID"){
+                await Organization.findByIdAndUpdate(data?.order_id, { planStatus: status })
+            }
+            return { status }
         }else {
             throw new ValidationError('please enter valid data')
         }

@@ -24,12 +24,16 @@ export default class organizations extends MongoDataSource {
         if(data){
             const organizations = await this.model.find({email:data.email});
             if(organizations?.length){
-                const checkPassword = await bcrypt.compare(data.password,organizations[0].password)
+                const checkPassword = await bcrypt.compare(data.password,organizations[0].password);
                 if(checkPassword){
-                    organizations[0].token=jwt.sign({_id: organizations[0]._id}, process.env.JWT_KEY, {
-                        expiresIn: '7d',
-                    });
-                    return organizations[0]
+                    if(organizations[0].planStatus === "PAID"){
+                        organizations[0].token=jwt.sign({_id: organizations[0]._id}, process.env.JWT_KEY, {
+                            expiresIn: '7d',
+                        });
+                        return organizations[0]
+                    }else {
+                        throw new AuthenticationError('please buy a plan for Login')
+                    }
                 }
                 else {
                     throw new AuthenticationError('password does not match')
