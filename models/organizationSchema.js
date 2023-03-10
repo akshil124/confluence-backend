@@ -16,6 +16,17 @@ const organization = mongoose.Schema({
     password:{
         type: 'String'
     },
+    number:{
+        type: 'String'
+    },
+    plan:{
+        type: 'String',
+        default: null
+    },
+    planStatus: {
+        type: 'String',
+        default: null
+    }
 });
 
 let Organization = mongoose.model("Organization",organization);

@@ -15,6 +15,12 @@ export const resolvers = {
         },
         createOrder: (parent, args, context) => {
             return context.dataSources.cashFree.createOrder(args)
+        },
+        orderPay: (parent, args, context) => {
+            return context.dataSources.cashFree.orderPay(args)
+        },
+        getOrderPaymentStatus: (parent, args, context) => {
+            return context.dataSources.cashFree.getOrderPaymentStatus(args)
         }
     }
 };
